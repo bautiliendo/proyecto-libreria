@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Libro {
+  id        Int         @id @default(autoincrement())
+  titulo    String @unique
+  autor     String
+  genero    String
+  anio      Int
+  stock     Int         @default(1) // Solo una copia por defecto
+  estado    EstadoLibro @default(ACTIVO)
+  prestamos Prestamo[] // Relación de uno a muchos con los préstamos
+}
+
+model Prestamo {
+  id Int @id @default(autoincrement())
+  nombreEstudiante String
+  fechaInicio      DateTime
+  fechaDevolucion  DateTime?
+
+  // Relación con el libro prestado
+  libroId          Int
+  libro            Libro     @relation(fields: [libroId], references: [id])
+}
+
+enum EstadoLibro {
+  ACTIVO
+  PRESTADO
+}
